@@ -1,0 +1,115 @@
+.clearfix:after {
+    clear: both;
+    content: "";
+    display: block;
+    height: 0;
+  }
+
+  a {
+    color: #212529;
+    text-decoration: none;
+    background-color: transparent;
+}
+.pb-4{
+  padding: none !important;
+}
+
+  .arrow-steps {
+    display: flex;
+    flex-flow: row nowrap;
+  }
+  .arrow-steps div {
+    position: relative;
+    margin-right: 10px;
+    width: 180px;
+    height: 60px;
+    background-color: #6e6e6e;
+    text-align: center;
+  }
+  .step {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 10px;
+  }
+
+  .arrow-steps .step:after,
+  .arrow-steps .step:before {
+    position: absolute;
+    top: 0;
+    content: " ";
+    border-style: solid;
+    border-width: 30px 0 30px 10px;
+    border-color: transparent transparent transparent #6e6e6e;
+  }
+  .arrow-steps .step:before {
+    left: 0;
+    border-color: transparent transparent transparent white;
+  }
+  .arrow-steps .step:after {
+    transform: translateX(100%);
+    right: 0;
+    border-left-color: inherit;
+  }
+  
+ 
+  
+  table {
+    margin-bottom: 10px;
+    /* margin-left: 200px; */
+    font-size: 16px;
+    font-weight: 400
+  }
+  .line1 {
+    border-bottom: 2px solid #dddddd;
+    width: 225px;
+  }
+  .line2 {
+    width: 120px;
+  }
+  .line3 {
+    border-bottom: 2px solid #dddddd;
+    width: 45px;
+  }
+  .line4 {
+    width: 140px;
+  }
+  .line5 {
+    width: 10px;
+  }
+  /* Cải thiện bố cục và kiểu chữ */
+h1 {
+  font-size: 2rem; /* Tăng kích thước font */
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Container bao bọc thông tin người nhận */
+.address-container {
+  background-color: #f9f9f9; /* Màu nền nhẹ */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Đổ bóng */
+}
+
+/* Mỗi phần thông tin người nhận */
+.address-item {
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+  color: #555;
+}
+
+.address-item strong {
+  font-weight: bold;
+  color: #333;
+}
+
+/* Màu sắc cho khi không có thông tin */
+.no-info {
+  font-size: 1.2rem;
+  color: #ff6b6b;
+  font-weight: 600;
+  text-align: center;
+  margin-top: 20px;
+}

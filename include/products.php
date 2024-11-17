@@ -2,9 +2,7 @@
 // session_start(); // Khởi động session
 include "../admin/config.php";  // Kết nối database
 
-if (!isset($_SESSION['cart'])) {
-    $_SESSION['cart'] = array();  // Khởi tạo giỏ hàng nếu chưa có
-}
+
 
 // Lấy danh sách sản phẩm từ database
 $sql = "SELECT * FROM products";
@@ -68,11 +66,10 @@ $result = $conn->query($sql);
                         </div>
                         <div class="mt-3 flex space-x-2">
                         <form action="cart_page.php" method="POST">
-                            <input type="hidden" name="product_id" value="<?php echo $row['product_id']; ?>" />
-                            <button type="submit" class="flex items-center bg-yellow-400 text-white px-2 py-1 rounded-lg hover:bg-yellow-500 transition-colors duration-100">Thêm vào Giỏ</button>
+                            <input type="hidden" name="user_id" value="<?php echo $_SESSION['user_id']; ?>"> 
+                            <input type="hidden" name="product_id" value="<?php echo $row['product_id']; ?>">
+                            <button class="btn btn-success" type="submit">Thêm vào Giỏ</button>
                         </form>
-
-
 
                             <button class="flex items-center bg-blue-500 text-white px-2 py-1 rounded-lg hover:bg-blue-600 transition-colors duration-200">Mua Ngay</button>
                         </div>

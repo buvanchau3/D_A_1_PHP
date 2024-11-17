@@ -16,7 +16,16 @@
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 <style>
-
+   a {
+    color: #212529;
+    text-decoration: none;
+    background-color: transparent;
+    }
+    a:hover{
+    color: #212529;
+    text-decoration: none;
+    background-color: transparent;
+    }
 </style>
 
 <body>
@@ -260,7 +269,7 @@
                 </ul>
             </li>
             <li class="nav-item" style="width: 100px;font-size: 15px;">
-                <a class="nav-link" href="../html/cart.php"><i class="bi bi-cart4"></i> Giỏ hàng</a>
+                <a class="nav-link" href="../html/cart_page.php"><i class="bi bi-cart4"></i> Giỏ hàng</a>
             </li>
         </ul>
     </nav>

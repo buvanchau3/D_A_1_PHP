@@ -1,76 +1,126 @@
 <?php
+// cart.php
+// session_start();
 
+include_once '../admin/config.php';
 
-class cart {
-    public $items = [];
-  
+class Cart {
+    private $user_id;
+    private $conn;
 
-     // Constructor - nếu chưa có giỏ hàng trong session thì tạo giỏ hàng mới
-    public function _construct(){
-        if(isset($_SESSION['carts']) && !empty($_SESSION['carts'])) {
-            $this->item = $_SESSION['carts']; 
-        }
+    public function __construct($user_id, $conn) {
+        $this->user_id = $user_id;
+        $this->conn = $conn;
     }
 
-    // thêm vào giỏ hàng
-    public function add($product) {
-        $productId = $product['product_id'];
-        if (isset($this->items[$productId])) {
-            // Tăng số lượng nếu sản phẩm đã có trong giỏ hàng
-            $this->items[$productId]['quantity']++;
+    // Thêm sản phẩm vào giỏ
+    public function addItem($product_id, $quantity) {
+        global $conn;
+
+        // Kiểm tra xem người dùng đã có giỏ hàng chưa
+        $sql = "SELECT cart_id FROM carts WHERE user_id = '$this->user_id'";
+        $result = $conn->query($sql);
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $cart_id = $row['cart_id'];
+
+            // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
+            $sql = "SELECT * FROM cart_items WHERE cart_id = '$cart_id' AND product_id = '$product_id'";
+            $result = $conn->query($sql);
+            if ($result->num_rows > 0) {
+                // Nếu có, cập nhật số lượng
+                $sql = "UPDATE cart_items SET quantity = quantity + $quantity WHERE cart_id = '$cart_id' AND product_id = '$product_id'";
+                $conn->query($sql);
+            } else {
+                // Nếu chưa có, thêm sản phẩm vào giỏ hàng
+                $sql = "INSERT INTO cart_items (cart_id, product_id, quantity) VALUES ('$cart_id', '$product_id', '$quantity')";
+                $conn->query($sql);
+            }
         } else {
-            // Thêm sản phẩm mới vào giỏ hàng
-            $this->items[$productId] = $product;
-            // Đặt số lượng ban đầu là 1
-            $this->items[$productId]['quantity'] = 1;
-        }
-        $this->setCart();  // Cập nhật lại session
-    }
-    
+            // Tạo giỏ hàng mới cho người dùng
+            $sql = "INSERT INTO carts (user_id) VALUES ('$this->user_id')";
+            $conn->query($sql);
+            $cart_id = $conn->insert_id;
 
-    //cập nhật giỏ hàng
-    public function update($productId, $quantity) {
-        if(isset($this->item[$productId])) {
-            if($quantity > 0) {
-                //cập nhật số lượng mới
-                $this->item[$productId]['quantity'] = $quantity;
-            }else{
-                $this->remove($productId);  // Nếu số lượng <= 0 thì xóa sản phẩm khỏi giỏ
+            // Thêm sản phẩm vào giỏ hàng
+            $sql = "INSERT INTO cart_items (cart_id, product_id, quantity) VALUES ('$cart_id', '$product_id', '$quantity')";
+            $conn->query($sql);
+        }
+    }
+
+    // Cập nhật số lượng sản phẩm
+    public function updateQuantity($product_id, $quantity) {
+        global $conn;
+
+        // Lấy cart_id của người dùng
+        $sql = "SELECT cart_id FROM carts WHERE user_id = '$this->user_id'";
+        $result = $conn->query($sql);
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $cart_id = $row['cart_id'];
+
+            $sql = "UPDATE cart_items SET quantity = '$quantity' WHERE cart_id = '$cart_id' AND product_id = '$product_id'";
+            $conn->query($sql);
+        }
+    }
+
+    // Xoá sản phẩm khỏi giỏ
+    public function removeItem($product_id) {
+        global $conn;
+
+        // Lấy cart_id của người dùng
+        $sql = "SELECT cart_id FROM carts WHERE user_id = '$this->user_id'";
+        $result = $conn->query($sql);
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $cart_id = $row['cart_id'];
+
+            $sql = "DELETE FROM cart_items WHERE cart_id = '$cart_id' AND product_id = '$product_id'";
+            $conn->query($sql);
+        }
+    }
+
+    // Lấy tất cả sản phẩm trong giỏ
+    public function getItems() {
+        global $conn;
+
+        $sql = "SELECT p.*, ci.quantity FROM products p JOIN cart_items ci ON p.product_id = ci.product_id JOIN carts c ON ci.cart_id = c.cart_id WHERE c.user_id = '$this->user_id'";
+        $result = $conn->query($sql);
+        $items = [];
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $items[$row['product_id']] = $row;
             }
         }
-        //cập nhật lại session
-        $this->setCart();
-   }
-    // Xóa sản phẩm khỏi giỏ hàng
-    public function remove($productId) {
-        if (isset($this->items[$productId])) {
-            unset($this->items[$productId]);  // Xóa sản phẩm khỏi giỏ
-        }
-    
-        $this->setCart();  // Cập nhật lại session
-    }
-    
-
-    // Lưu giỏ hàng vào session
-    private function setCart()
-    {
-        $_SESSION['carts'] = $this->items;  // Lưu giỏ hàng vào session
-    }
-
-    // Lấy tất cả các sản phẩm trong giỏ
-    public function getCart()
-    {
-        return $this->items;
+        return $items;
     }
 
     // Tính tổng giá trị giỏ hàng
-    public function getTotal()
-    {
-        $sum = 0;
-        foreach ($this->items as $product) {
-            $sum += $product['quantity'] * $product['price'];  // Tính tổng tiền theo số lượng và giá
+    public function getTotal() {
+        global $conn;
+
+        $total = 0;
+        $items = $this->getItems();
+        foreach ($items as $item) {
+            $total += $item['price'] * $item['quantity'];
         }
-        return $sum;
+        return $total;
+    }
+
+    // Xóa giỏ hàng
+    public function clearCart() {
+        global $conn;
+
+        // Lấy cart_id của người dùng
+        $sql = "SELECT cart_id FROM carts WHERE user_id = '$this->user_id'";
+        $result = $conn->query($sql);
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $cart_id = $row['cart_id'];
+
+            $sql = "DELETE FROM cart_items WHERE cart_id = '$cart_id'";
+            $conn->query($sql);
+        }
     }
 }
 ?>
